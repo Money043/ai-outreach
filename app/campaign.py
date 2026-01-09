@@ -1,31 +1,28 @@
-import pandas as pd
+from app.database import SessionLocal
+from app.models import User
 from app.ai_email import generate_email
 from app.send_email import send_email
-from app.logger import log
 
-def run_campaign(user):
-    log(user, "Campaign started")
+def run_campaign(leads, logged_in_user_email):
+    db = SessionLocal()
 
-    path = f"data/{user}/leads.csv"
-    try:
-        df = pd.read_csv(path)
-    except:
-        log(user, "No leads file found")
-        return
+    # Load full user from DB
+    user = db.query(User).filter(User.email == logged_in_user_email).first()
 
-    for _, row in df.iterrows():
-        name = row["name"]
-        email = row["email"]
-        company = row.get("company", "their company")
-        industry = row.get("industry", "their industry")
+    if not user:
+        raise Exception("User not found")
 
-        log(user, f"Generating email for {email}")
+    for lead in leads:
+        email = lead["email"]
+        name = lead["name"]
+        company = lead["company"]
+        industry = lead["industry"]
+
+        print("✉️ Generating email for", email)
 
         message = generate_email(name, company, industry)
 
-        log(user, f"Sending to {email}")
+        print("📨 Sending email...")
         send_email(email, message, user)
 
-        log(user, f"Sent to {email}")
-
-    log(user, "Campaign finished")
+    db.close()

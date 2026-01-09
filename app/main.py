@@ -61,9 +61,16 @@ async def upload(file: UploadFile = File(...), user=Depends(get_current_user)):
 # ---------------- START CAMPAIGN (PER USER) ----------------
 
 @app.post("/start-campaign")
-def start_campaign(background_tasks: BackgroundTasks, user=Depends(get_current_user)):
-    background_tasks.add_task(run_campaign, user)
-    return {"message": "Campaign started for " + user}
+def start_campaign(
+    background_tasks: BackgroundTasks,
+    user_email: str = Depends(get_current_user)
+):
+    background_tasks.add_task(run_campaign, user_email)
+
+    return {
+        "message": f"Campaign started for {user_email}"
+    }
+
 
 @app.post("/connect-email")
 def connect_email(sender_email: str, brevo_login: str, brevo_password: str, user=Depends(get_current_user)):
