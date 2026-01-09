@@ -5,30 +5,45 @@
 </div>
 
 <div class="container">
+
+  <h2>Connect your email</h2>
+
+  <input id="sender" placeholder="Your email (e.g. you@company.com)">
+  <input id="login" placeholder="Brevo SMTP Login">
+  <input id="pass" type="password" placeholder="Brevo SMTP Key">
+
+  <button onclick="connect()">Connect Email</button>
+
+  <hr style="margin:30px 0">
+
   <h2>Upload Leads</h2>
   <input type="file" id="file">
   <button onclick="upload()">Upload</button>
 
-  <h2 style="margin-top:40px;">Start Campaign</h2>
-  <button onclick="start()">Start Outreach</button>
+  <hr style="margin:30px 0">
+
+  <h2>Start Outreach</h2>
+  <button onclick="start()">Start Campaign</button>
 
   <p id="status"></p>
-</div>
 
-<h3>Connect your email</h3>
-<input id="smtp_email" placeholder="Your Gmail">
-<input id="smtp_password" type="password" placeholder="App password">
-<button onclick="connect()">Connect</button>
+</div>
 
 <script>
 async function connect(){
-  await fetch(`/connect-email?smtp_email=${smtp_email.value}&smtp_password=${smtp_password.value}`, {
-    method:"POST",
-    headers:{Authorization:"Bearer "+localStorage.token}
+  const sender = encodeURIComponent(document.getElementById("sender").value);
+  const login = encodeURIComponent(document.getElementById("login").value);
+  const pass = encodeURIComponent(document.getElementById("pass").value);
+
+  const res = await fetch(`/connect-email?sender_email=${sender}&brevo_login=${login}&brevo_password=${pass}`, {
+    method: "POST",
+    headers: { "Authorization": "Bearer " + localStorage.token }
   });
-  alert("Email connected");
+
+  const data = await res.json();
+  alert(data.message || "Connected");
 }
-    
+
 async function upload(){
   const fd = new FormData();
   fd.append("file", file.files[0]);

@@ -7,15 +7,13 @@ def send_email(to, content, user):
     db = SessionLocal()
     u = db.query(User).filter(User.email == user).first()
 
-    if not u.smtp_email or not u.smtp_password:
-        raise Exception("No email connected")
-
     msg = EmailMessage()
-    msg["From"] = u.smtp_email
+    msg["From"] = u.sender_email
     msg["To"] = to
     msg["Subject"] = "Quick question"
     msg.set_content(content)
 
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-        server.login(u.smtp_email, u.smtp_password)
+    with smtplib.SMTP("smtp-relay.brevo.com", 587) as server:
+        server.starttls()
+        server.login(u.brevo_login, u.brevo_password)
         server.send_message(msg)

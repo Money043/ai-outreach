@@ -66,13 +66,15 @@ def start_campaign(background_tasks: BackgroundTasks, user=Depends(get_current_u
     return {"message": "Campaign started for " + user}
 
 @app.post("/connect-email")
-def connect_email(smtp_email: str, smtp_password: str, user=Depends(get_current_user)):
+def connect_email(sender_email: str, brevo_login: str, brevo_password: str, user=Depends(get_current_user)):
     db = SessionLocal()
     u = db.query(User).filter(User.email == user).first()
 
-    u.smtp_email = smtp_email
-    u.smtp_password = smtp_password
+    u.sender_email = sender_email
+    u.brevo_login = brevo_login
+    u.brevo_password = brevo_password
     db.commit()
 
     return {"message": "Email connected"}
+
 

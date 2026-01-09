@@ -8,5 +8,6 @@ class User(Base):
     email = Column(String, unique=True)
     password = Column(String)
 
-    smtp_email = Column(String, nullable=True)
-    smtp_password = Column(String, nullable=True)
+    sender_email = Column(String, nullable=True)
+    brevo_login = Column(String, nullable=True)
+    brevo_password = Column(String, nullable=True)
