@@ -77,4 +77,11 @@ def connect_email(sender_email: str, brevo_login: str, brevo_password: str, user
 
     return {"message": "Email connected"}
 
+@app.get("/logs")
+def get_logs(user=Depends(get_current_user)):
+    try:
+        with open(f"logs/{user}/campaign.log") as f:
+            return {"log": f.read()}
+    except:
+        return {"log": "No logs yet"}
 
