@@ -1,0 +1,54 @@
+<link rel="stylesheet" href="/frontend/style.css">
+
+<div class="nav">
+  <div class="logo">rech.ai</div>
+</div>
+
+<div class="container">
+  <h2>Upload Leads</h2>
+  <input type="file" id="file">
+  <button onclick="upload()">Upload</button>
+
+  <h2 style="margin-top:40px;">Start Campaign</h2>
+  <button onclick="start()">Start Outreach</button>
+
+  <p id="status"></p>
+</div>
+
+<h3>Connect your email</h3>
+<input id="smtp_email" placeholder="Your Gmail">
+<input id="smtp_password" type="password" placeholder="App password">
+<button onclick="connect()">Connect</button>
+
+<script>
+async function connect(){
+  await fetch(`/connect-email?smtp_email=${smtp_email.value}&smtp_password=${smtp_password.value}`, {
+    method:"POST",
+    headers:{Authorization:"Bearer "+localStorage.token}
+  });
+  alert("Email connected");
+}
+    
+async function upload(){
+  const fd = new FormData();
+  fd.append("file", file.files[0]);
+
+  const res = await fetch("/upload", {
+    method: "POST",
+    headers: { "Authorization": "Bearer " + localStorage.token },
+    body: fd
+  });
+
+  const data = await res.json();
+  status.innerText = data.message;
+}
+
+async function start(){
+  const res = await fetch("/start-campaign", {
+    method: "POST",
+    headers: { "Authorization": "Bearer " + localStorage.token }
+  });
+  const data = await res.json();
+  status.innerText = data.message;
+}
+</script>

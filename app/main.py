@@ -3,12 +3,14 @@ from fastapi.responses import FileResponse
 import shutil
 import os
 
+from fastapi.staticfiles import StaticFiles
 from app.campaign import run_campaign
 from app.models import User
 from app.auth import hash_password, verify_password, create_token, get_current_user
 from database import SessionLocal, Base, engine
 
 app = FastAPI()
+app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
 
 # Create DB tables
 Base.metadata.create_all(bind=engine)
@@ -17,7 +19,7 @@ Base.metadata.create_all(bind=engine)
 
 @app.get("/")
 def dashboard():
-    return FileResponse("frontend/index.html")
+    return FileResponse("frontend/login.html")
 
 # ---------------- AUTH ----------------
 
@@ -62,3 +64,15 @@ async def upload(file: UploadFile = File(...), user=Depends(get_current_user)):
 def start_campaign(background_tasks: BackgroundTasks, user=Depends(get_current_user)):
     background_tasks.add_task(run_campaign, user)
     return {"message": "Campaign started for " + user}
+
+@app.post("/connect-email")
+def connect_email(smtp_email: str, smtp_password: str, user=Depends(get_current_user)):
+    db = SessionLocal()
+    u = db.query(User).filter(User.email == user).first()
+
+    u.smtp_email = smtp_email
+    u.smtp_password = smtp_password
+    db.commit()
+
+    return {"message": "Email connected"}
+

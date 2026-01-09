@@ -1,0 +1,38 @@
+<link rel="stylesheet" href="/frontend/style.css">
+
+<div class="nav">
+  <div class="logo">rech.ai</div>
+</div>
+
+<div class="container">
+  <h2>Create Account</h2>
+
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+
+  <button onclick="signup()">Sign up</button>
+
+  <p style="margin-top:15px; text-align:center;">
+    Already have an account?
+    <a href="/frontend/login.html">Sign in</a>
+  </p>
+</div>
+
+<script>
+async function signup(){
+  const email = encodeURIComponent(document.getElementById("email").value);
+  const password = encodeURIComponent(document.getElementById("password").value);
+
+  const res = await fetch(`/signup?email=${email}&password=${password}`, {
+    method: "POST"
+  });
+
+  const data = await res.json();
+  alert(data.message || data.error);
+
+  if(data.message){
+    location.href="/frontend/login.html";
+  }
+}
+</script>
+

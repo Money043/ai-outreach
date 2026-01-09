@@ -5,15 +5,13 @@ from app.send_email import send_email
 def run_campaign(user):
     print(f"🚀 Campaign started for {user}")
 
-    leads_path = f"data/{user}/leads.csv"
+    path = f"data/{user}/leads.csv"
 
     try:
-        df = pd.read_csv(leads_path)
+        df = pd.read_csv(path)
     except:
-        print("❌ No leads found for", user)
+        print("❌ No leads file found for", user)
         return
-
-    print(f"📄 Loaded {len(df)} leads for {user}")
 
     for _, row in df.iterrows():
         name = row["name"]
@@ -26,8 +24,6 @@ def run_campaign(user):
         message = generate_email(name, company, industry)
 
         print("📨 Sending email...")
-        send_email(email, message)
+        send_email(email, message, user)
 
         print(f"✅ Email sent to {email}")
-
-    print(f"🎉 Campaign completed for {user}")

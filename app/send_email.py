@@ -1,17 +1,21 @@
-import os
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
-from dotenv import load_dotenv
+import smtplib
+from email.message import EmailMessage
+from database import SessionLocal
+from app.models import User
 
-load_dotenv(dotenv_path=".env")
+def send_email(to, content, user):
+    db = SessionLocal()
+    u = db.query(User).filter(User.email == user).first()
 
-def send_email(to_email: str, subject: str, content: str):
-    message = Mail(
-        from_email=os.getenv("FROM_EMAIL"),
-        to_emails=to_email,
-        subject=subject,
-        plain_text_content=content
-    )
+    if not u.smtp_email or not u.smtp_password:
+        raise Exception("No email connected")
 
-    sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY"))
-    sg.send(message)
+    msg = EmailMessage()
+    msg["From"] = u.smtp_email
+    msg["To"] = to
+    msg["Subject"] = "Quick question"
+    msg.set_content(content)
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        server.login(u.smtp_email, u.smtp_password)
+        server.send_message(msg)
